@@ -1,0 +1,1 @@
+export {NewUserPage as default, generateMetadata} from "@/plain-pages/new-user";

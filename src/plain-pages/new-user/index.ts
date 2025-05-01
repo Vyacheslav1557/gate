@@ -1,0 +1,1 @@
+export {NewUserPage, generateMetadata} from "./page";

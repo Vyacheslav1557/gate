@@ -1,0 +1,35 @@
+.input {
+    min-height: 253px;
+    padding: var(--mantine-spacing-sm);
+
+    @media (max-width: $mantine-breakpoint-xxl) {
+        min-height: 130px;
+        padding: var(--mantine-spacing-xs);
+    }
+}
+
+.code {
+    width: 565px;
+    height: fit-content;
+    background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-8));
+    padding: var(--mantine-spacing-md);
+    border-radius: var(--mantine-radius-default);
+
+    @media (max-width: $mantine-breakpoint-xxl) {
+        width: 365px;
+        padding: var(--mantine-spacing-sm);
+    }
+}
+
+.dropzone__content {
+    padding: var(--mantine-spacing-sm);
+    gap: var(--mantine-spacing-sm);
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+
+    @media (max-width: $mantine-breakpoint-xxl) {
+        min-height: 130px;
+        padding: var(--mantine-spacing-xs);
+    }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "gen": "openapi-generator-cli generate -g typescript-axios -i ./proto/user/v1/openapi.yaml -o ./proto/user/v1/api && openapi-generator-cli generate -g typescript-axios -i ./proto/tester/v1/openapi.yaml -o ./proto/tester/v1/api"
+  },
+  "dependencies": {
+    "@mantine/core": "^7.17.0",
+    "@mantine/dropzone": "^7.17.0",
+    "@mantine/form": "^7.17.0",
+    "@mantine/hooks": "^7.17.0",
+    "@tabler/icons-react": "^3.30.0",
+    "@tanstack/react-query": "^5.66.7",
+    "axios": "^1.7.9",
+    "jsonwebtoken": "^9.0.2",
+    "katex": "^0.16.21",
+    "next": "^15.1.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "redux-query": "3.6.1-rc.2"
+  },
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.16.3",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^20.17.19",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "postcss": "^8.5.2",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1",
+    "typescript": "^5.7.3"
+  }
+}

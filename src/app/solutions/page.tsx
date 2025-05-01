@@ -1,0 +1,1 @@
+export {SolutionsPage as default, generateMetadata} from "@/plain-pages/solutions";

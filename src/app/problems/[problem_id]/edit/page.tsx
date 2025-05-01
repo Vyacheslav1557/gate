@@ -1,0 +1,1 @@
+export {ProblemEditPage as default, generateMetadata} from "@/plain-pages/problem-edit";
