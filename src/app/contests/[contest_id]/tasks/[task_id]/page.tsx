@@ -1,1 +1,0 @@
-export {TaskPage as default, generateMetadata} from "@/plain-pages/task";

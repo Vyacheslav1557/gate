@@ -1,26 +1,24 @@
 import {Metadata} from "next";
 import React from "react";
-import {UsersList} from "@/components/UsersList";
-import {forbidden, redirect} from "next/navigation";
+import {forbidden, notFound, redirect} from "next/navigation";
 import {getAuthToken, handleResponseError, parseAuthToken, Role, withBearerAuth} from "@/lib/auth";
 import {testerApi} from "@/lib/api";
-import {AppShellAside, AppShellFooter, AppShellHeader, AppShellMain, Stack} from "@mantine/core";
+import {AppShellAside, AppShellHeader, AppShellMain, Stack} from "@mantine/core";
 import {Layout} from "@/components/Layout";
 import {Header} from "@/components/Header";
-import {CreateUserForm} from "@/components/CreateUserForm";
-import {CreateUser} from "./actions";
-import {Footer} from "@/components/Footer";
+import {ParticipantsList} from "@/components/ParticipantsList";
 
 type Props = {
+    params: Promise<{ contest_id: number }>
     searchParams: Promise<{ page: number }>
 }
 
 const metadata: Metadata = {
-    title: 'Пользователи',
+    title: 'Участники',
     description: '',
 }
 
-const GetUsers = async (page: number, pageSize: number) => {
+const ListParticipants = async (page: number, pageSize: number, contestId: number) => {
     const token = await getAuthToken();
     if (!token) {
         redirect("/login");
@@ -34,12 +32,24 @@ const GetUsers = async (page: number, pageSize: number) => {
     const options = withBearerAuth(token);
 
     try {
-        const response = await testerApi.listUsers(page,
-            pageSize,
-            undefined,
-            undefined,
-            undefined,
-            options);
+        const response = await testerApi.listParticipants(contestId, page, pageSize, options);
+
+        return response.data;
+    } catch (error) {
+        return handleResponseError(error);
+    }
+}
+
+const GetContest = async (contestId: number) => {
+    const token = await getAuthToken();
+    if (!token) {
+        redirect("/login");
+    }
+
+    const options = withBearerAuth(token);
+
+    try {
+        const response = await testerApi.getContest(contestId, options);
 
         return response.data;
     } catch (error) {
@@ -49,10 +59,16 @@ const GetUsers = async (page: number, pageSize: number) => {
 
 const Page = async (props: Props) => {
     const page = (await props.searchParams).page || 1;
+    const contestId = (await props.params).contest_id;
 
-    const usersList = await GetUsers(page, 10);
+    if (!contestId) {
+        notFound()
+    }
 
-    if (!usersList) {
+    const contest = await GetContest(contestId)
+    const usersList = await ListParticipants(page, 15, contestId);
+
+    if (!usersList || !contest) {
         return (
             <div>Что-то пошло не так!</div>
         );
@@ -64,17 +80,18 @@ const Page = async (props: Props) => {
                 <Header/>
             </AppShellHeader>
             <AppShellMain>
-                <UsersList users={usersList.users} pagination={usersList.pagination}/>
+                <ParticipantsList
+                    users={usersList.users}
+                    pagination={usersList.pagination}
+                    contest={contest.contest}
+                />
             </AppShellMain>
             <AppShellAside withBorder={false} px="16">
                 <Stack pt="16">
                     {/*<TextInput placeholder="Поиск"/>*/}
-                    <CreateUserForm onSubmitFn={CreateUser}/>
+                    {/*<CreateUserForm onSubmitFn={CreateUser}/>*/}
                 </Stack>
             </AppShellAside>
-            <AppShellFooter withBorder={false}>
-                <Footer/>
-            </AppShellFooter>
         </Layout>
     )
 }

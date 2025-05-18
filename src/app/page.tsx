@@ -1,6 +1,5 @@
-import {AppShell, AppShellHeader, AppShellMain} from "@mantine/core";
-import {Header} from "@/components/header";
 import React from "react";
+import {DefaultLayout} from "@/components/Layout";
 
 export const metadata = {
     title: 'Главная',
@@ -9,13 +8,8 @@ export const metadata = {
 
 export default function Page() {
     return (
-        <AppShell header={{height: 70}}>
-            <AppShellHeader>
-                <Header/>
-            </AppShellHeader>
-            <AppShellMain>
-
-            </AppShellMain>
-        </AppShell>
+        <DefaultLayout>
+            Главная
+        </DefaultLayout>
     );
 }

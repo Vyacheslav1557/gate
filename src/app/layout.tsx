@@ -4,17 +4,17 @@ import '@mantine/core/styles.css';
 import '@mantine/dropzone/styles.css';
 
 import React from 'react';
-import {AppShell, ColorSchemeScript, mantineHtmlProps, MantineProvider} from '@mantine/core';
+import {ColorSchemeScript, mantineHtmlProps, MantineProvider} from '@mantine/core';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-
+import {Notifications} from "@mantine/notifications";
 
 const queryClient = new QueryClient();
 
 export default function RootLayout({children}: { children: any }) {
     return (
-        <html lang="en" {...mantineHtmlProps}>
+        <html lang="ru" {...mantineHtmlProps}>
         <head>
-            <ColorSchemeScript defaultColorScheme="light"/>
+            <ColorSchemeScript defaultColorScheme="auto"/>
             <link rel="shortcut icon" href="/gate_logo.svg"/>
             <meta
                 name="viewport"
@@ -23,10 +23,9 @@ export default function RootLayout({children}: { children: any }) {
         </head>
         <body>
         <QueryClientProvider client={queryClient}>
-            <MantineProvider defaultColorScheme="light" withGlobalClasses forceColorScheme="light">
-                <AppShell>
-                    {children}
-                </AppShell>
+            <MantineProvider defaultColorScheme="auto" withGlobalClasses>
+                <Notifications/>
+                {children}
             </MantineProvider>
         </QueryClientProvider>
         </body>
