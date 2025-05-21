@@ -39,7 +39,7 @@ const SolutionsList = ({solutions}: SolutionsListProps) => {
             </TableTd>
             <TableTd ta="center">
                 <Text c={StateColor(solution.state)} fw={500}>
-                    {StateString(solution.state)}
+                    {StateString(solution.state) == "UK" ? solution.state : StateString(solution.state)}
                 </Text>
             </TableTd>
             <TableTd ta="center">

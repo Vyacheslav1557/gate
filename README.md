@@ -31,6 +31,15 @@ For understanding the architecture, see the [documentation](https://github.com/V
 - **Node.js**: Version 18 or higher.
 - **npm**: Version 8 or higher.
 
+## Configuration
+
+Create a `.env` file in the root directory with the following variables:
+
+```dotenv
+TESTER_URL=http://localhost:13000
+NEXT_PUBLIC_WS_TESTER_URL=ws://localhost:13000
+```
+
 ## Installation
 
 ```bash

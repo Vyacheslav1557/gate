@@ -1,7 +1,7 @@
 import {Configuration, DefaultApi} from "../../contracts/tester/v1/api";
 
 const configuration = new Configuration({
-    basePath: "http://localhost:13000",
+    basePath: process.env.TESTER_URL,
 });
 
 const testerApi = new DefaultApi(configuration);
