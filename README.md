@@ -45,6 +45,7 @@ NEXT_PUBLIC_WS_TESTER_URL=ws://localhost:13000
 ```bash
 git clone https://github.com/your-org/gate.git
 cd gate
+```
    
 Install dependencies:
 ```bash
