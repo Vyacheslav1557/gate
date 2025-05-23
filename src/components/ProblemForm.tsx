@@ -1,20 +1,23 @@
 'use client';
 
-import React from 'react';
-import {Button, Group, NumberInput, Stack, Textarea, TextInput, Title} from "@mantine/core";
+import React, { useState } from 'react';
+import { Button, Group, NumberInput, Stack, Textarea, TextInput, Title, Modal, FileInput } from "@mantine/core";
 import * as testerv1 from "../../contracts/tester/v1/api";
-import {useForm} from "@mantine/form";
-import {useMutation} from "@tanstack/react-query";
-import {useRouter} from "next/navigation";
-import {DefaultLayout} from "@/components/Layout";
+import { useForm } from "@mantine/form";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { DefaultLayout } from "@/components/Layout";
 
 type Props = {
-    problem: testerv1.Problem
-    onSubmitFn: (id: number, data: any) => Promise<any>
+    problem: testerv1.Problem;
+    onSubmitFn: (id: number, data: any) => Promise<any>;
+    onUploadFn: (id: number, data: FormData) => Promise<any>;
 }
 
-const ProblemForm = ({problem, onSubmitFn}: Props) => {
+const ProblemForm = ({ problem, onSubmitFn, onUploadFn }: Props) => {
     const router = useRouter();
+    const [opened, setOpened] = useState(false);
+    const [file, setFile] = useState<File | null>(null);
 
     const form = useForm({
         initialValues: {
@@ -25,7 +28,7 @@ const ProblemForm = ({problem, onSubmitFn}: Props) => {
             input_format: problem.input_format,
             output_format: problem.output_format,
             notes: problem.notes,
-            scoring: problem.scoring
+            scoring: problem.scoring,
         },
     });
 
@@ -35,16 +38,35 @@ const ProblemForm = ({problem, onSubmitFn}: Props) => {
             form.resetDirty();
             router.refresh();
         },
-        onError: (error) => {
+        onError: (_) => {
             form.clearErrors();
         },
-        retry: false
+        retry: false,
+    });
+
+    const uploadMutation = useMutation({
+        mutationFn: (formData: FormData) => onUploadFn(problem.id, formData),
+        onSuccess: () => {
+            setOpened(false);
+            setFile(null);
+        },
+        onError: (error) => {
+            console.error("Upload failed:", error);
+        },
     });
 
     const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        mutation.mutate(form.getValues())
-    }
+        mutation.mutate(form.getValues());
+    };
+
+    const handleUpload = () => {
+        if (file) {
+            const formData = new FormData();
+            formData.append("file", file);
+            uploadMutation.mutate(formData);
+        }
+    };
 
     return (
         <DefaultLayout>
@@ -53,6 +75,9 @@ const ProblemForm = ({problem, onSubmitFn}: Props) => {
                     <Group justify="flex-end" w="100%" mt="16">
                         <Button type="submit" disabled={!form.isDirty()}>
                             Сохранить
+                        </Button>
+                        <Button onClick={() => setOpened(true)}>
+                            Загрузить файл
                         </Button>
                     </Group>
                     <Stack align="center" w="65em" gap="16">
@@ -124,8 +149,32 @@ const ProblemForm = ({problem, onSubmitFn}: Props) => {
                     </Stack>
                 </Stack>
             </form>
+
+            {/* Modal for file upload */}
+            <Modal
+                opened={opened}
+                onClose={() => setOpened(false)}
+                title="Загрузить файл"
+                centered
+            >
+                <Stack>
+                    <FileInput
+                        label="Выберите файл"
+                        placeholder="Выберите файл"
+                        onChange={setFile}
+                        value={file}
+                    />
+                    <Button
+                        onClick={handleUpload}
+                        disabled={!file}
+                        loading={uploadMutation.isPending}
+                    >
+                        Загрузить
+                    </Button>
+                </Stack>
+            </Modal>
         </DefaultLayout>
     );
 };
 
-export {ProblemForm};
+export { ProblemForm };

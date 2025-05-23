@@ -74,6 +74,24 @@ const Page = async (props: Props) => {
         );
     }
 
+    const onDeleteFn = async (id: number) => {
+        "use server";
+
+        const token = await getAuthToken();
+        if (!token) {
+            return null;
+        }
+
+        const options = withBearerAuth(token);
+        try {
+            const response = await testerApi.deleteParticipant(id, contestId, options);
+
+            return response.data;
+        } catch (error) {
+            return handleResponseError(error);
+        }
+    }
+
     return (
         <Layout>
             <AppShellHeader>
@@ -84,6 +102,7 @@ const Page = async (props: Props) => {
                     users={usersList.users}
                     pagination={usersList.pagination}
                     contest={contest.contest}
+                    onDeleteFn={onDeleteFn}
                 />
             </AppShellMain>
             <AppShellAside withBorder={false} px="16">

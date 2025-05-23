@@ -207,11 +207,11 @@ const Contest = ({contest, tasks}: ContestProps) => {
                     >
                         Монитор
                     </Button>
-                    <Button
-                        variant="outline"
-                    >
-                        Редактировать контест
-                    </Button>
+                    {/*<Button*/}
+                    {/*    variant="outline"*/}
+                    {/*>*/}
+                    {/*    Редактировать контест*/}
+                    {/*</Button>*/}
                     <CreateParticipantForm
                         fetchUsers={fetchUsers}
                         onSubmitFn={submitCreateParticipant}

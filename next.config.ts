@@ -1,8 +1,11 @@
-import type { NextConfig } from "next";
+import type {NextConfig} from "next";
 
 const nextConfig: NextConfig = {
     experimental: {
-        authInterrupts: true
+        authInterrupts: true,
+        serverActions: {
+            bodySizeLimit: '512mb',
+        },
     },
     // typescript: {
     //     // !! WARN !!

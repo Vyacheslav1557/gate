@@ -1,5 +1,3 @@
-'use server';
-
 import React from 'react';
 import {Metadata} from "next";
 import {ProblemForm} from '@/components/ProblemForm';
@@ -13,6 +11,8 @@ type Props = {
 }
 
 const GetProblem = async (token: string | undefined, problem_id: number | undefined) => {
+    "use server";
+
     if (!problem_id) {
         notFound();
     }
@@ -59,8 +59,37 @@ const Page = async (props: Props) => {
         );
     }
 
+    const onUploadFn = async (id: number, data: FormData) => {
+        "use server";
+
+        console.log(id, data);
+
+        const token = await getAuthToken();
+        if (!token) {
+            return null;
+        }
+
+        const archive = data.get("file");
+        if (!archive || !(archive instanceof File)) {
+            return null;
+        }
+
+        const options = withBearerAuth(token);
+        try {
+            const response = await testerApi.uploadProblem(id, archive, options);
+
+            return response.data;
+        } catch (error) {
+            return handleResponseError(error);
+        }
+    }
+
     return (
-        <ProblemForm problem={problem.problem} onSubmitFn={UpdateProblem}/>
+        <ProblemForm
+            problem={problem.problem}
+            onSubmitFn={UpdateProblem}
+            onUploadFn={onUploadFn}
+        />
     )
 };
 
