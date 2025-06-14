@@ -1,3 +1,5 @@
+"use client";
+
 import {Table, TableTbody, TableTd, TableTh, TableThead, TableTr, Text} from "@mantine/core";
 import {LangString, ProblemTitle, StateColor, StateString, TimeBeautify} from "@/lib/lib";
 import Link from "next/link";

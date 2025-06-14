@@ -1,22 +1,17 @@
 'use client';
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {SolutionsList} from '@/components/SolutionsList';
 import * as testerv1 from '../../../contracts/tester/v1/api';
 
+const MessageTypeCreate = "CREATE";
+const MessageTypeUpdate = "UPDATE";
+const MessageTypeDelete = "DELETE";
+
 interface Message {
     message_type: string;
-    items?: testerv1.ListSolutionsResponse;
-    item?: SolutionItem;
-}
-
-interface SolutionItem {
-    solution_id: number;
-    message?: any; // FIXME
-    state?: number;
-    score?: number;
-    memory_stat?: number;
-    time_stat?: number;
+    message?: string;
+    solution: testerv1.SolutionsListItem;
 }
 
 interface SolutionsListWithWebSocketProps {
@@ -24,97 +19,95 @@ interface SolutionsListWithWebSocketProps {
     wsUrl: string;
     token: string;
     queryParams: Record<string, string | number | undefined>;
-    pagination: testerv1.Pagination;
 }
 
-// @ts-ignore
 const SolutionsListWithWS: React.FC<SolutionsListWithWebSocketProps> = (
     {
         initialSolutions,
         wsUrl,
         token,
-        queryParams,
+        queryParams
     }
 ) => {
     const [solutions, setSolutions] = useState<testerv1.SolutionsListItem[]>(initialSolutions);
-    const [ws, setWs] = useState<WebSocket | null>(null);
-
-    const buildQueryString = (params: Record<string, string | number | undefined>) => {
-        const validParams = Object.entries(params)
-            .filter(([_, value]) => value !== undefined && value !== '')
-            .map(([key, value]) => `${key}=${encodeURIComponent(value!)}`);
-        return validParams.length > 0 ? `?${validParams.join('&')}` : '';
-    };
-
-    const url = `${wsUrl}${buildQueryString(queryParams)}&token=${encodeURIComponent("Bearer " + token)}`;
-
-    // console.log(url);
+    const ws = useRef<WebSocket | null>(null);
 
     useEffect(() => {
+        console.log(queryParams)
 
-        const websocket = new WebSocket(url);
+        if (!(queryParams.page === 1 && queryParams.order === -1)) {
+            return;
+        }
+
+        const websocket =  new WebSocket(`${wsUrl}?token=${token}`);
 
         websocket.onopen = () => {
             console.log('WebSocket connected');
-
-            const interval = setInterval(() => {
-                if (websocket.readyState === WebSocket.OPEN) {
-                    websocket.send(JSON.stringify({}));
-                }
-            }, 10000);
-
-            (websocket as any).interval = interval; // FIXME
         };
 
         websocket.onmessage = (event) => {
             try {
-                const message: Message = JSON.parse(event.data);
-                if (message.message_type === 'SYNC') {
+                const data = JSON.parse(event.data) as Message;
 
-                    if (message.items?.solutions) {
-                        setSolutions(message.items.solutions);
-                    }
-                } else if (message.message_type === 'UPDATE') {
+                if (data.message_type === MessageTypeCreate) {
 
-                    if (message.item) {
-                        setSolutions((prevSolutions) =>
-                            prevSolutions.map((solution) =>
-                                solution.id === message.item!.solution_id
-                                    ? {
-                                        ...solution,
-                                        state: message.item!.state ?? message.item?.message ?? solution.state,
-                                        score: message.item!.score ?? solution.score,
-                                        memory_stat: message.item!.memory_stat ?? solution.memory_stat,
-                                        time_stat: message.item!.time_stat ?? solution.time_stat,
-                                    }
-                                    : solution
-                            )
-                        );
-                    }
+                    setSolutions((prevSolutions) => [data.solution, ...prevSolutions.slice(0, -1)]);
+                    return;
+                }
+
+                if (data.message_type === MessageTypeUpdate) {
+
+                    setSolutions((prevSolutions) =>
+                        prevSolutions.map((solution) => {
+                            if (solution.id === data.solution.id) {
+                                if (data.message) {
+                                    // FIXME
+                                    // @ts-ignore
+                                    data.solution.state = data.message;
+                                }
+
+                                return data.solution;
+                            }
+
+                            return solution;
+                        })
+                    );
+                    return;
+                }
+
+                if (data.message_type === MessageTypeDelete) {
+
+                    setSolutions((prevSolutions) =>
+                        prevSolutions.filter((solution) => solution.id !== data.solution.id)
+                    );
+                    return;
                 }
             } catch (error) {
-                console.error('Error parsing WebSocket message:', error);
+                console.error('WebSocket message error:', error);
             }
-        };
-
-        websocket.onclose = () => {
-            console.log('WebSocket disconnected');
         };
 
         websocket.onerror = (error) => {
             console.error('WebSocket error:', error);
         };
 
-        setWs(websocket);
+        websocket.onclose = () => {
+            console.log('WebSocket disconnected');
+            ws.current = null;
+        };
+
+        ws.current = websocket;
 
         return () => {
-            if ((websocket as any).interval) {
-                clearInterval((websocket as any).interval);
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                websocket.close();
             }
-
-            websocket.close();
         };
-    }, [wsUrl, token]);
+    }, [wsUrl, token, queryParams]);
+
+    useEffect(() => {
+        setSolutions(initialSolutions);
+    }, [initialSolutions]);
 
     return <SolutionsList solutions={solutions}/>;
 };

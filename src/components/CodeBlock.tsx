@@ -18,8 +18,6 @@ const CodeBlock: React.FC<CodeBlockProps> = ({code, language}) => {
         setTheme(colorScheme === 'dark' ? oneDark : oneLight);
     }, [colorScheme]);
 
-    console.log(colorScheme);
-
     return (
         <SyntaxHighlighter
             language={language}
