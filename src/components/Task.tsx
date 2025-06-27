@@ -86,7 +86,7 @@ const Task = ({tasks, contest, task, onSubmit, solutions}: PageProps) => {
                         Последние посылки {" "}
                         <Anchor
                             component={Link}
-                            href={`/solutions?contest_id=${contest.id}`}
+                            href={`/solutions?contestId=${contest.id}&order=-1`}
                             fs="italic"
                             c="var(--mantine-color-text)"
                             fw={500}
